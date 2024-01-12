@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jmaralo/sntp/timestamp"
+	"github.com/jmaralo/sntp/internal/timestamp"
 )
 
 func TestTimestamp(t *testing.T) {
