@@ -13,6 +13,8 @@ func TestTimestamp(t *testing.T) {
 		EXPECTED_FRACTION = 0x7bff7370
 	)
 	instant := time.Date(2017, 5, 26, 13, 22, 9, 484366621, time.UTC)
+
+	// This test checks that when applying the conversion back and forth, the instant is kept.
 	t.Run("idempotency", func(t *testing.T) {
 		ts := timestamp.FromTime(instant)
 		newInstant := ts.ToTime()
