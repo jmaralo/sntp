@@ -1,6 +1,7 @@
 package timestamp
 
 import (
+	"io"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type Timestamp struct {
 	Fraction uint32
 }
 
-// FromTime converts a [time.Time] to a [Timestamp].
+// FromTime converts a [time.Time] to a Timestamp.
 //
 // Note this implementation returns a Fraction value off by 4-5 nanoseconds.
 func FromTime(t time.Time) Timestamp {
@@ -24,9 +25,32 @@ func FromTime(t time.Time) Timestamp {
 	}
 }
 
-// ToTime converts a [Timestamp] to a [time.Time].
+// ToTime converts a Timestamp to a [time.Time].
 func (t Timestamp) ToTime() time.Time {
 	seconds := t.Seconds - 2208988800
 	nanos := (uint64(t.Fraction) * 1e9) >> 32
 	return time.Unix(int64(seconds), int64(nanos))
+}
+
+func (t Timestamp) Write(writer io.Writer) error {
+	data := []byte{
+		byte(t.Seconds >> 24 & 0xff),
+		byte(t.Seconds >> 16 & 0xff),
+		byte(t.Seconds >> 8 & 0xff),
+		byte(t.Seconds & 0xff),
+		byte(t.Fraction >> 24 & 0xff),
+		byte(t.Fraction >> 16 & 0xff),
+		byte(t.Fraction >> 8 & 0xff),
+		byte(t.Fraction & 0xff),
+	}
+
+	totalWrite := 0
+	for totalWrite < len(data) {
+		n, err := writer.Write(data[totalWrite:])
+		totalWrite += n
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
