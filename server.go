@@ -69,19 +69,20 @@ func (request udpRequest) serve(conn *net.UDPConn, ref timestamp.Timestamp) erro
 	switch msg.Mode {
 	case message.Client:
 		msg.Mode = message.Server
-		msg.LeapIndicator = message.NoWarning
-		msg.Stratum = 1
-		msg.Precision = -20
-		msg.RootDelay = 0
-		msg.RootDispersion = 0
-		msg.ReferenceID = 0x4c4f434c // LOCL
-		msg.ReferenceTimestamp = ref
-		msg.ReceiveTimestamp = timestamp.FromTime(time.Now())
-		msg.TransmitTimestamp = msg.ReceiveTimestamp
-		fallthrough
 	default:
 		msg.Mode = message.SymmetricPassive
 	}
+
+	msg.LeapIndicator = message.NoWarning
+	msg.Stratum = 1
+	msg.Precision = -20
+	msg.RootDelay = 0
+	msg.RootDispersion = 0
+	msg.ReferenceID = 0x4c4f434c // LOCL
+	msg.ReferenceTimestamp = ref
+	msg.OriginateTimestamp = msg.TransmitTimestamp
+	msg.ReceiveTimestamp = timestamp.FromTime(time.Now())
+	msg.TransmitTimestamp = msg.ReceiveTimestamp
 
 	writeBuf := new(bytes.Buffer)
 	err = msg.Write(writeBuf)
